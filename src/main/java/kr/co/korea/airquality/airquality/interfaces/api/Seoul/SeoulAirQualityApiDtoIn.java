@@ -1,4 +1,4 @@
-package kr.co.korea.airquality.airquality.interfaces.api;
+package kr.co.korea.airquality.airquality.interfaces.api.Seoul;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;

@@ -1,9 +1,8 @@
-package kr.co.korea.airquality.airquality.infrastructure.api;
+package kr.co.korea.airquality.airquality.interfaces.api.Seoul;
 
-import kr.co.korea.airquality.airquality.infrastructure.api.SeoulAirQualityApi;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import kr.co.korea.airquality.airquality.interfaces.api.SeoulAirQualityApiDtoIn;
+import kr.co.korea.airquality.airquality.infrastructure.api.AirQualityLevel;
 import kr.co.korea.airquality.airquality.interfaces.api.SeoulAirQualityApiDtoOut;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,6 +10,8 @@ import org.springframework.stereotype.Component;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.*;
 import java.io.IOException;
@@ -51,9 +52,11 @@ public class SeoulAirQualityApiCaller {
     // 메소드 (인터페이스 Call getAirQuality 구현부분)
     public SeoulAirQualityApiDtoOut.GetAirQualityInfo getAirQuality(){
         try{
+
+            String date = getDateOfHourAgo();
             // 통신 완료 후 callback 받기 위함
             // response json!!!
-            var call = seoulAirQualityAPI.getAirQuality();
+            var call = seoulAirQualityAPI.getAirQuality(date);
             // response json 이 deserialized 된 ResponseJson 객체
             var response = call.execute().body(); //역직렬화된 body부분을 띄운다
 
@@ -77,6 +80,11 @@ public class SeoulAirQualityApiCaller {
         }
     }
 
+    // 한시간 전의 날짜를 가져오는 메소드
+    private String getDateOfHourAgo() {
+        return LocalDateTime.now().minusHours(1).format(DateTimeFormatter.ofPattern("yyyymmdd"));
+    }
+
     // In -> Out 으로 한 목록씩 전환
     // DtoIn 의 List를 stream 으로 하나씩 돌려서 DtoOut의 List 로 바꾸기
     private List<SeoulAirQualityApiDtoOut.AirQualityOfDistrict> convert(List<SeoulAirQualityApiDtoIn.Result> results){
@@ -94,7 +102,14 @@ public class SeoulAirQualityApiCaller {
                 ).collect(Collectors.toList());
     }
 
+
     // averagePM10 $ averagePM10Level 만들어야함
+    private Double averagePm10(List<SeoulAirQualityApiDtoIn.Result> results){
+        return results.stream()
+                .mapToDouble(SeoulAirQualityApiDtoIn.Result::getPm10)// 기존데이터 수정 및 pm10뽑아서
+                .average()// 평균집계
+                .orElse(Double.NaN); // 없을경우 디폴트값0.0
+    }
 
 
     // ***** 이 부분이 DtoIn 을 DtoOut으로 만드는 핵심 ********************************88
@@ -104,15 +119,21 @@ public class SeoulAirQualityApiCaller {
         // List<Result> 가져와서 변수에 담기
         var header = InResults.getResults().getHeader();
         var results = InResults.getResults().getResult();
+        var averagePm10 = AirQualityLevel.getPm10Level(averagePm10(results).floatValue());
 
 
         return SeoulAirQualityApiDtoOut.GetAirQualityInfo.builder()
                 //.zone(getAirQuality().getZone()) // ?질문: results.getZone() 안되는 이유 & 무한로딩
+                .zone("서울")
+                .date(getDateOfHourAgo())
+                .averagePM10(averagePm10(results))
+                .averagePM10Level(averagePm10)
                 .resultMessage(header.getMessage())
                 .airQualityByDistricts(convert(results))
                 .build();
-
     }
+
+
 
 
 }

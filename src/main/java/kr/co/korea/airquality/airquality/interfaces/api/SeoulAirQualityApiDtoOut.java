@@ -12,10 +12,10 @@ public class SeoulAirQualityApiDtoOut {
     @Getter
     @Builder
     public static class GetAirQualityInfo{ // 시까지만 조회시 여러개, 구까지만 조회시 한개만 나오게
-        private String zone; // ??
+        private String zone; // ok
         private String resultMessage; // ok
-        private Integer date; // 아직안함
-        private Float averagePM10; // ok
+        private String date; // ok
+        private Double averagePM10; // ok
         private String averagePM10Level; // ok
         private List<AirQualityOfDistrict> airQualityByDistricts; // ok
 
@@ -36,7 +36,6 @@ public class SeoulAirQualityApiDtoOut {
             return this;
         }
     }
-
 
     @Getter
     public static class AirQualityOfDistrict{
@@ -73,13 +72,13 @@ public class SeoulAirQualityApiDtoOut {
             this.co = co;
             this.so2 = so2;
 
-            AirQualityLevel airQualityLevel = new AirQualityLevel();
-            this.PM10Level = airQualityLevel.getPm10Level(pm10);
-            this.PM25Level= airQualityLevel.getPm25Level(pm25);
-            this.O3Level = airQualityLevel.getO3Level(o3);
-            this.NO2Level = airQualityLevel.getNO2Level(no2);
-            this.COLevel = airQualityLevel.getCOLevel(co);
-            this.SO2Level = airQualityLevel.getSO2Level(so2);
+            //AirQualityLevel airQualityLevel = new AirQualityLevel(); static method 만 있는 클래스는 인스턴스화하면안됨
+            this.PM10Level = AirQualityLevel.getPm10Level(pm10);
+            this.PM25Level= AirQualityLevel.getPm25Level(pm25);
+            this.O3Level = AirQualityLevel.getO3Level(o3);
+            this.NO2Level = AirQualityLevel.getNO2Level(no2);
+            this.COLevel = AirQualityLevel.getCOLevel(co);
+            this.SO2Level = AirQualityLevel.getSO2Level(so2);
         }
 
     }

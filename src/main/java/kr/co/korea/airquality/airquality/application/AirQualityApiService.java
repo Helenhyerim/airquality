@@ -1,8 +1,9 @@
-package kr.co.korea.airquality.airquality.application;//package kr0.co.korea.airquality.airquality;
+package kr.co.korea.airquality.airquality.application;
+//package kr0.co.korea.airquality.airquality;
 //
 //import lombok.AllArgsConstructor;
 
-import kr.co.korea.airquality.airquality.infrastructure.api.SeoulAirQualityApiCaller;
+import kr.co.korea.airquality.airquality.interfaces.api.Seoul.SeoulAirQualityApiCaller;
 import kr.co.korea.airquality.airquality.interfaces.api.SeoulAirQualityApiDtoOut;
 import org.springframework.stereotype.Service;
 
@@ -11,12 +12,13 @@ import org.springframework.stereotype.Service;
 @Service
 //@AllArgsConstructor // 의존성주입
 // 둘중에 하나만 final만
-public class SeoulAirQualityApiService {
+public class AirQualityApiService {
 
     // 생성자로 의존성 주입
-    private final SeoulAirQualityApiCaller seoulAirQualityAPICaller;
+    private final KoreaAirQualityApiCaller koreaAirQualityApiCaller;
     // 이걸 대체하는 annotation 이 @RequiredArgsConstructor/@AllArgsConstructor
-    public SeoulAirQualityApiService(SeoulAirQualityApiCaller seoulAirQualityAPICaller) {
+    public AirQualityApiService(SeoulAirQualityApiCaller seoulAirQualityAPICaller) {
+
         this.seoulAirQualityAPICaller = seoulAirQualityAPICaller;
     }
 
